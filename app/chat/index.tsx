@@ -13,13 +13,14 @@ export default function HomeScreen({ navigation }: any) {
 
 
   function handleCreateNewChat() {
-    if (!query) return;
+    if (!query) return null;
 
     const { id, slug } = createChat();
     setTimeout(() => {
       navigation.jumpTo(slug, { id });
     }, 100);
     createMessage("user", "result", query, id);
+    return id
   }
 
   return (

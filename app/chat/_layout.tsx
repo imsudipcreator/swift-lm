@@ -18,6 +18,10 @@ export default function ChatLayout() {
   const router = useRouter()
   const { chats } = useChatStore(state => state)
   const { signOut } = useAuth();
+  const [visible, setVisible] = React.useState(false);
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+
   return (
     <Drawer.Navigator
       initialRouteName="new-chat"
@@ -71,8 +75,9 @@ export default function ChatLayout() {
                     },
                     {
                       text: 'Sign out',
-                      onPress: () => {
-                        signOut()
+                      onPress: async () => {
+                        await signOut();
+                        router.push('/')
                       },
                       style: 'destructive',
                     },
@@ -94,10 +99,7 @@ export default function ChatLayout() {
             component={ChatScreen}
             initialParams={{ id: chat.id }}
             options={{
-              headerRight: () => <MaterialIcons onPress={() => router.push('/settings')} name="settings" size={24} style={{ paddingRight: 12, color: theme.colors.primary }} />,
-              headerBackgroundContainerStyle: {
-                backgroundColor: theme.colors.elevation.level4,
-              }
+              headerShown: false
             }}
           />
         ))

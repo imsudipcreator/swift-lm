@@ -29,7 +29,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Hey, can you help me plan my day?",
+    content: `<think>Summary: User asks for help planning their day.</think>\n\n**Hey**, can you help me plan my day?`,
     chatId: "1",
   },
   {
@@ -38,7 +38,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Of course! What kind of tasks do you have today?",
+    content: `<think>Summary: Ask a clarifying question to list tasks so plan fits user's needs.</think>\n\nOf course! *What kind of tasks do you have today?*`,
     chatId: "1",
   },
   {
@@ -47,7 +47,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "I need to study, work on my app, and maybe do some workout.",
+    content: `<think>Summary: User lists three categories: study, app dev, workout.</think>\n\nI need to **study**, work on my **app**, and maybe do some **workout**.`,
     chatId: "1",
   },
   {
@@ -56,7 +56,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Got it! How many hours can you dedicate to each activity?",
+    content: `<think>Summary: Determine time availability to create a realistic schedule.</think>\n\nGot it! How many hours can you dedicate to each activity?`,
     chatId: "1",
   },
   {
@@ -65,7 +65,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "I have like 8 hours free today.",
+    content: `<think>Summary: User provides total free time: 8 hours.</think>\n\nI have like **8 hours** free today.`,
     chatId: "1",
   },
   {
@@ -74,7 +74,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Great! Let's divide it: 3 hrs study, 3 hrs coding, 1 hr workout, 1 hr break?",
+    content: `<think>Summary: Propose a balanced allocation across tasks and breaks to avoid burnout.</think>\n\nGreat! Let's divide it:\n- 3 hrs study\n- 3 hrs coding\n- 1 hr workout\n- 1 hr break`,
     chatId: "1",
   },
   {
@@ -83,7 +83,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Sounds good. Can you also remind me to drink water?",
+    content: `<think>Summary: User requests hydration reminders — low-effort habit integrated into schedule.</think>\n\nSounds good. Can you also **remind me to drink water**?`,
     chatId: "1",
   },
   {
@@ -92,7 +92,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Sure! I’ll include small reminders every hour in your plan.",
+    content: `<think>Summary: Add hourly micro-reminders to support hydration without disrupting tasks.</think>\n\nSure! I’ll include small reminders **every hour** in your plan.`,
     chatId: "1",
   },
   {
@@ -101,7 +101,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Nice. Also, I feel a bit overwhelmed lately.",
+    content: `<think>Summary: User reports feeling overwhelmed — signals need for prioritization & pacing.</think>\n\nI feel a bit **overwhelmed** lately.`,
     chatId: "1",
   },
   {
@@ -110,7 +110,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "I'm here for you. Want to talk about what's stressing you?",
+    content: `<think>Summary: Offer emotional support and invite details so we can address stress concretely.</think>\n\nI'm here for you. Want to talk about what's stressing you?`,
     chatId: "1",
   },
   {
@@ -119,7 +119,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Just too many projects and responsibilities at once.",
+    content: `<think>Summary: User explains cause: many projects/responsibilities.</think>\n\nJust too many **projects** and **responsibilities** at once.`,
     chatId: "1",
   },
   {
@@ -128,7 +128,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "That’s understandable. Taking things one step at a time can reduce the pressure.",
+    content: `<think>Summary: Suggest stepwise approach to reduce overwhelm and improve focus.</think>\n\nThat’s understandable. Taking things *one step at a time* helps reduce pressure.`,
     chatId: "1",
   },
   {
@@ -137,7 +137,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Yeah, maybe I should prioritize better.",
+    content: `<think>Summary: User acknowledges need to prioritize.</think>\n\nYeah, maybe I should **prioritize** better.`,
     chatId: "1",
   },
   {
@@ -146,7 +146,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Absolutely. Want me to help you rank your current tasks?",
+    content: `<think>Summary: Offer to help rank tasks by urgency, impact, and deadlines.</think>\n\nAbsolutely. Want me to help you **rank your tasks**?`,
     chatId: "1",
   },
   {
@@ -155,7 +155,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Sure. I have app development, college work, and preparing for an interview.",
+    content: `<think>Summary: User lists specific items: app dev, college work, interview prep.</think>\n\nI have **app development**, **college work**, and **interview prep**.`,
     chatId: "1",
   },
   {
@@ -164,7 +164,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Priority order: 1) Interview prep, 2) College work, 3) App dev. Does that seem right?",
+    content: `<think>Summary: Prioritize by likely short-term impact and deadlines; interview prep is most time-sensitive.</think>\n\n**Priority:**\n1. Interview prep\n2. College work\n3. App development\n\nDoes that seem right?`,
     chatId: "1",
   },
   {
@@ -173,7 +173,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Yes, that makes sense.",
+    content: `<think>Summary: User agrees with the priority order.</think>\n\nYes, that makes sense.`,
     chatId: "1",
   },
   {
@@ -182,7 +182,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Great! Want a schedule integrating these priorities?",
+    content: `<think>Summary: Offer to build a schedule that reflects the agreed priorities and time budget.</think>\n\nGreat! Want me to generate a **schedule** for you?`,
     chatId: "1",
   },
   {
@@ -191,7 +191,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: "Yes please. Make it doable.",
+    content: `<think>Summary: User requests a doable schedule.</think>\n\nYes please. Make it **doable**.`,
     chatId: "1",
   },
   {
@@ -200,7 +200,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: "Here you go: 2 hrs interview prep, 2 hrs college work, 3 hrs app dev, plus breaks.",
+    content: `<think>Summary: Produce time allocation that balances priorities, breaks, and habit reminders.</think>\n\nHere’s your plan:\n- 2 hrs **interview prep**\n- 2 hrs **college work**\n- 3 hrs **app dev**\n- + breaks and hourly water reminders`,
     chatId: "1",
   },
 ];

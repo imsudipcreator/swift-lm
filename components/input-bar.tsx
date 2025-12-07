@@ -14,13 +14,13 @@ import Animated, {
 interface InputBarProps {
     query: string;
     setQuery: (query: string) => void;
-    onPress?: () => void
+    onPress?: () => string | null;
 }
 
 export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     const translateY = useSharedValue(0);
     const theme = useTheme();
-    const { setLoading } = useMessageStore(state => state)
+    const { setLoading, createMessage } = useMessageStore(state => state)
 
     useEffect(() => {
         const showSub = Keyboard.addListener(
@@ -53,11 +53,13 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     async function handleSend() {
         if (!query) return
         try {
-            onPress?.();
+            const id = onPress?.();
+            if(!id) return
             setLoading({ state: true, message: 'Warming up model...' })
             await llamaService.initialize()
             setLoading({ state: true, message: 'Generating response...' })
-            await llamaService.generate([{ role: 'user', content: query }])
+            const response = await llamaService.generate([{ role: 'user', content: query }])
+            createMessage("assistant", "result", response, id)
         } catch (error) {
             console.error(error)
         } finally {
