@@ -1,10 +1,8 @@
 import ChatHeader from '@/components/chat-header';
 import InputBar from '@/components/input-bar';
-import { parseMessageContent } from '@/lib';
 import { useMessageStore } from '@/store/message-store';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React, { useState } from 'react';
-import { Keyboard, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
 import { Text, useTheme } from 'react-native-paper';
@@ -19,8 +17,8 @@ export default function ChatScreen({ route, navigation }: any) {
     const [openedThoughts, setOpenedThoughts] = useState<number | null>(null)
 
     // console.log(messages)
-    console.log("id: ", id)
-    console.log("navigation: ", navigation)
+    // console.log("id: ", id)
+    // console.log("navigation: ", navigation)
 
     function toggleThoughts(index: number) {
         if (openedThoughts === index) {
@@ -51,10 +49,10 @@ export default function ChatScreen({ route, navigation }: any) {
                                 </View>
                             )
                         } else {
-                            const { think, content } = parseMessageContent(message.content)
+                            // const { think, content } = parseMessageContent(message.content)
                             return (
                                 <View key={index} style={[styles.assistantMessageContainer]}>
-                                    {
+                                    {/* {
                                         think && (
                                             <View style={[styles.thoughtsContainer]}>
                                                 <TouchableOpacity onPress={() => toggleThoughts(index)} style={[styles.thoughtsButton]}>
@@ -64,8 +62,8 @@ export default function ChatScreen({ route, navigation }: any) {
                                                 <Text variant='bodyLarge' style={{ textAlign: 'left', paddingLeft: 8, color: '#b8b8b8', height: openedThoughts === index ? 'auto' : 0 }}>{think}</Text>
                                             </View>
                                         )
-                                    }
-                                    <Markdown style={{ body: { color: theme.colors.onBackground, fontSize: 16, width: '100%' } }}>{content}</Markdown>
+                                    } */}
+                                    <Markdown style={{ body: { color: theme.colors.onBackground, fontSize: 16, width: '100%' } }}>{message.content}</Markdown>
                                 </View>
                             )
                         }

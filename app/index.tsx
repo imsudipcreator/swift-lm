@@ -7,23 +7,41 @@ import 'react-native-get-random-values';
 import { ActivityIndicator } from 'react-native-paper';
 
 export default function EntryScreen() {
-    const { isLoaded, isSignedIn } = useAuth()
-    const checkOfflineLogin = async () => {
-        const loggedIn = await AsyncStorage.getItem("is_logged_in");
-        if (loggedIn === "true") {
-            return <Redirect href={'/chat'} />;
-        }
-    };
-    checkOfflineLogin();
-    if (isLoaded && !isSignedIn) {
-        return <Redirect href={'/auth'} />
+    const { isLoaded, isSignedIn } = useAuth();
+    const [offlineLoggedIn, setOfflineLoggedIn] = React.useState<boolean | null>(null);
+
+    // Check offline login first
+    React.useEffect(() => {
+        (async () => {
+            const loggedIn = await AsyncStorage.getItem("is_logged_in");
+            setOfflineLoggedIn(loggedIn === "true");
+        })();
+    }, []);
+
+    // Still loading offline status
+    if (offlineLoggedIn === null) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator />
+            </View>
+        );
     }
-    if (isLoaded && isSignedIn) {
-        return <Redirect href={'/chat'} />
+
+    // If offline login is true → ALWAYS redirect to chat
+    if (offlineLoggedIn === true) {
+        return <Redirect href="/chat" />;
     }
+
+    // No offline login → fallback to Clerk auth
+    if (isLoaded) {
+        if (!isSignedIn) return <Redirect href="/auth" />;
+        if (isSignedIn) return <Redirect href="/chat" />;
+    }
+
+    // Still loading Clerk
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator />
         </View>
-    )
+    );
 }

@@ -22,7 +22,7 @@ interface InputBarProps {
 export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     const translateY = useSharedValue(0);
     const theme = useTheme();
-    const { setLoading, createMessage } = useMessageStore(state => state)
+    const { setLoading, createMessage, updateLatestMessage } = useMessageStore(state => state)
     const { model } = useModelStore(state => state);
     const router = useRouter();
 
@@ -57,11 +57,11 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     async function handleSend() {
         if (!query) return
         try {
-            if(!model){
+            if (!model) {
                 setLoading(null)
                 Alert.alert(
-                    'Please select a model', 
-                    'You need to select a model to use this feature. If you don\'t have a model, you can download one from the settings.', 
+                    'Please select a model',
+                    'You need to select a model to use this feature. If you don\'t have a model, you can download one from the settings.',
                     [
                         {
                             text: 'OK',
@@ -78,12 +78,18 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
                 return
             }
             const id = onPress?.();
-            if(!id) return
+            if (!id) return
             setLoading({ state: true, message: 'Warming up model...' })
             await llamaService.initialize(model)
             setLoading({ state: true, message: 'Generating response...' })
-            const response = await llamaService.generate([{ role: 'user', content: query }])
-            createMessage("assistant", "result", response, id)
+            // const response = await llamaService.generate([{ role: 'user', content: query }])
+            const messageId = createMessage("assistant", "result", "", id)
+            llamaService.completion([{ role: 'user', content: query }], (data) => {
+                const response = data.content ?? ""; // streaming token buffer
+                console.log(response)
+
+                updateLatestMessage(response)
+            });
         } catch (error) {
             console.error(error)
         } finally {

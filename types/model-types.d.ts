@@ -1,6 +1,8 @@
 export interface ModelState {
     model: string | null;
-    setModel: (model: string) => void
+    setModel: (model: string) => void;
+    downloadingModel: string | null;
+    setDownloadingModel: (model: string) => void;
 }
 
 export type Model = {

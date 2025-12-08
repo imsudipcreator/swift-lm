@@ -33,5 +33,5 @@ export interface MessageState {
   setLoading: (loading: Loading) => void;
   mountMessage: (message: MessageType) => void;
   createMessage: (role: string, type: string, content: string, chatId: string) => void;
-  updateLatestMessage: (callback: MessagesCallback) => void;
+  updateLatestMessage: (chunk: string) => void;
 }
