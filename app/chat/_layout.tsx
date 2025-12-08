@@ -1,6 +1,8 @@
 import { useChatStore } from '@/store/chat-store';
+import { useModelStore } from '@/store/model-store';
 import { useAuth } from '@clerk/clerk-expo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
@@ -9,6 +11,7 @@ import { IconButton, useTheme } from 'react-native-paper';
 import HomeScreen from '.';
 import ProfileScreen from '../profile';
 import ChatScreen from './chat';
+import SettingsScreen from './settings';
 
 
 const Drawer = createDrawerNavigator();
@@ -17,11 +20,19 @@ export default function ChatLayout() {
   const theme = useTheme()
   const router = useRouter()
   const { chats } = useChatStore(state => state)
+  const { setModel } = useModelStore(state => state)
   const { signOut } = useAuth();
-  const [visible, setVisible] = React.useState(false);
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
 
+
+  React.useEffect(() => {
+    const loadModelPath = async () => {
+      const model_path = await AsyncStorage.getItem('model_path');
+      console.log('model_path', model_path);
+      if (model_path) setModel(model_path);
+    };
+
+    loadModelPath();
+  }, []);
   return (
     <Drawer.Navigator
       initialRouteName="new-chat"
@@ -45,8 +56,8 @@ export default function ChatLayout() {
           drawerIcon: () => <MaterialIcons name="add" size={24} style={{ color: theme.colors.primary }} />,
           headerRight: () => (
             <IconButton
-              icon={() => <MaterialIcons name="settings" size={24} style={{ color: theme.colors.primary }} />}
-              onPress={() => router.push('/settings')}
+              icon={() => <MaterialIcons name="energy-savings-leaf" size={24} style={{ color: theme.colors.primary }} />}
+            // onPress={() => router.push('/settings')}
             />
           ),
           headerBackgroundContainerStyle: {
@@ -86,6 +97,17 @@ export default function ChatLayout() {
               }}
             />
           ),
+          headerBackgroundContainerStyle: {
+            backgroundColor: theme.colors.elevation.level4,
+          }
+        }}
+      />
+      <Drawer.Screen
+        name="settings"
+        component={SettingsScreen}
+        options={{
+          title: "Settings",
+          drawerIcon: () => <MaterialIcons name="settings" size={24} style={{ color: theme.colors.primary }} />,
           headerBackgroundContainerStyle: {
             backgroundColor: theme.colors.elevation.level4,
           }

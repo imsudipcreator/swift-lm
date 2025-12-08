@@ -1,4 +1,5 @@
 import { useSSO } from '@clerk/clerk-expo'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as AuthSession from 'expo-auth-session'
 import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
@@ -44,16 +45,33 @@ export default function SignInScreen() {
                 // For web, defaults to current path
                 // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
                 // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
-                redirectUrl: AuthSession.makeRedirectUri(),
+                redirectUrl: AuthSession.makeRedirectUri({
+                    scheme: "swiftlm",     // <= match your app.json
+                    path: "oauth-native-callback"
+                }),
             })
 
             // If sign in was successful, set the active session
             if (createdSessionId) {
                 setActive!({
                     session: createdSessionId,
+                    // 🔹 Save user state locally for offline login
                     // Check for session tasks and navigate to custom UI to help users resolve them
                     // See https://clerk.com/docs/guides/development/custom-flows/overview#session-tasks
                     navigate: async ({ session }) => {
+                        await AsyncStorage.setItem("is_logged_in", "true");
+                        // 🔹 Optionally save user profile (NOT the token)
+                        if (session?.user) {
+                            await AsyncStorage.setItem(
+                                "user_profile",
+                                JSON.stringify({
+                                    id: session.user.id,
+                                    email: session.user.primaryEmailAddress?.emailAddress,
+                                    name: session.user.fullName,
+                                    image: session.user.imageUrl,
+                                })
+                            );
+                        }
                         if (session?.currentTask) {
                             console.log(session?.currentTask)
                             // router.push('/sign-in/tasks')

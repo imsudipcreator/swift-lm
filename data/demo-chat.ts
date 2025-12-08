@@ -137,7 +137,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "user",
     type: "result",
-    content: `<think>Summary: User acknowledges need to prioritize.</think>\n\nYeah, maybe I should **prioritize** better.`,
+    content: `\n\nYeah, maybe I should **prioritize** better.`,
     chatId: "1",
   },
   {
@@ -146,7 +146,7 @@ export const DemoMessages: MessageType[] = [
     updatedAt: new Date(),
     role: "assistant",
     type: "result",
-    content: `<think>Summary: Offer to help rank tasks by urgency, impact, and deadlines.</think>\n\nAbsolutely. Want me to help you **rank your tasks**?`,
+    content: `\n\nAbsolutely. Want me to help you **rank your tasks**?`,
     chatId: "1",
   },
   {

@@ -19,7 +19,7 @@ export default function ChatScreen({ route, navigation }: any) {
     const [openedThoughts, setOpenedThoughts] = useState<number | null>(null)
 
     // console.log(messages)
-    console.log("id: ",id)
+    console.log("id: ", id)
     console.log("navigation: ", navigation)
 
     function toggleThoughts(index: number) {
@@ -38,10 +38,11 @@ export default function ChatScreen({ route, navigation }: any) {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} style={{ flex: 1 }}>
             <View style={{ flex: 1, paddingBottom: 60 }}>
-                <ChatHeader title={route.name ?? "Undefined"} onDrawerPress={navigation.toggleDrawer}/>
+                <ChatHeader title={route.name ?? "Undefined"} onDrawerPress={navigation.toggleDrawer} />
                 <FlatList
                     data={messages}
                     keyExtractor={(item) => item.id}
+                    alwaysBounceVertical
                     renderItem={({ item: message, index }) => {
                         if (message.role === "user") {
                             return (
@@ -53,13 +54,17 @@ export default function ChatScreen({ route, navigation }: any) {
                             const { think, content } = parseMessageContent(message.content)
                             return (
                                 <View key={index} style={[styles.assistantMessageContainer]}>
-                                    <View style={[styles.thoughtsContainer]}>
-                                        <TouchableOpacity onPress={() => toggleThoughts(index)} style={[styles.thoughtsButton]}>
-                                            <Text style={{ color: theme.colors.primary }}>Thoughts</Text>
-                                            <MaterialIcons name="chevron-right" style={{ color: theme.colors.primary, transform: [{ rotate: openedThoughts === index ? '90deg' : '0deg' }] }} size={17} />
-                                        </TouchableOpacity>
-                                        <Text variant='bodyLarge' style={{ textAlign: 'left', paddingLeft: 8, color: '#b8b8b8', height: openedThoughts === index ? 'auto' : 0 }}>{think}</Text>
-                                    </View>
+                                    {
+                                        think && (
+                                            <View style={[styles.thoughtsContainer]}>
+                                                <TouchableOpacity onPress={() => toggleThoughts(index)} style={[styles.thoughtsButton]}>
+                                                    <Text style={{ color: theme.colors.primary }}>Thoughts</Text>
+                                                    <MaterialIcons name="chevron-right" style={{ color: theme.colors.primary, transform: [{ rotate: openedThoughts === index ? '90deg' : '0deg' }] }} size={17} />
+                                                </TouchableOpacity>
+                                                <Text variant='bodyLarge' style={{ textAlign: 'left', paddingLeft: 8, color: '#b8b8b8', height: openedThoughts === index ? 'auto' : 0 }}>{think}</Text>
+                                            </View>
+                                        )
+                                    }
                                     <Markdown style={{ body: { color: theme.colors.onBackground, fontSize: 16, width: '100%' } }}>{content}</Markdown>
                                 </View>
                             )

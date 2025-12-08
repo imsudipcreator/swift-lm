@@ -1,8 +1,10 @@
 import llamaService from '@/services/llama-service';
 import { useMessageStore } from '@/store/message-store';
+import { useModelStore } from '@/store/model-store';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Keyboard, Platform } from 'react-native';
+import { Alert, Keyboard, Platform } from 'react-native';
 import { Searchbar, useTheme } from 'react-native-paper';
 import Animated, {
     useAnimatedStyle,
@@ -21,6 +23,8 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     const translateY = useSharedValue(0);
     const theme = useTheme();
     const { setLoading, createMessage } = useMessageStore(state => state)
+    const { model } = useModelStore(state => state);
+    const router = useRouter();
 
     useEffect(() => {
         const showSub = Keyboard.addListener(
@@ -53,10 +57,30 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     async function handleSend() {
         if (!query) return
         try {
+            if(!model){
+                setLoading(null)
+                Alert.alert(
+                    'Please select a model', 
+                    'You need to select a model to use this feature. If you don\'t have a model, you can download one from the settings.', 
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => null,
+                            style: 'default'
+                        },
+                        {
+                            text: 'Model Store',
+                            onPress: () => router.push('/models'),
+                            style: 'destructive'
+                        }
+                    ]
+                )
+                return
+            }
             const id = onPress?.();
             if(!id) return
             setLoading({ state: true, message: 'Warming up model...' })
-            await llamaService.initialize()
+            await llamaService.initialize(model)
             setLoading({ state: true, message: 'Generating response...' })
             const response = await llamaService.generate([{ role: 'user', content: query }])
             createMessage("assistant", "result", response, id)
@@ -67,6 +91,10 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
         }
     }
 
+
+    useEffect(() => {
+        console.log("Model:", model)
+    }, [])
 
 
     return (

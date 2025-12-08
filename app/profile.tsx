@@ -1,13 +1,22 @@
 import { useUser } from '@clerk/clerk-expo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useNetInfo } from '@react-native-community/netinfo';
 import React from 'react';
 import { View } from 'react-native';
-import { Avatar, Icon, Text, useTheme } from 'react-native-paper';
+import { Avatar, Icon, Text } from 'react-native-paper';
 
 
 export default function ProfileScreen() {
     const { user } = useUser();
-    const theme = useTheme();
+    const { isConnected, isInternetReachable } = useNetInfo();
+
+    if(!isConnected || !isInternetReachable) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>Offline</Text>
+            </View>
+        )
+    }
     if (!user) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

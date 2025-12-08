@@ -37,13 +37,12 @@ class LlamaService {
     }
   }
 
-  async initialize() {
+  async initialize(model_path: string) {
     try {
-      await this.downloadModel();
 
       console.log("Initializing llama model…");
       this.context = await initLlama({
-        model: MODEL_PATH,
+        model: model_path,
         use_mlock: false, // force system to keep model in RAM
         n_ctx: 2048, // max number of tokens
         n_gpu_layers: 1, // > 0: enable Metal on iOS,
