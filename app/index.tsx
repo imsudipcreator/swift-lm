@@ -34,7 +34,7 @@ export default function EntryScreen() {
 
     // No offline login → fallback to Clerk auth
     if (isLoaded) {
-        if (!isSignedIn) return <Redirect href="/auth" />;
+        if (!isSignedIn) return <Redirect href="/onboarding" />;
         if (isSignedIn) return <Redirect href="/chat" />;
     }
 

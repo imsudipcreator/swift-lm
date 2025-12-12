@@ -11,38 +11,63 @@ import * as Linking from "expo-linking";
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { DMSerifText_400Regular, DMSerifText_400Regular_Italic, useFonts } from '@expo-google-fonts/dm-serif-text';
+import { Pacifico_400Regular } from '@expo-google-fonts/pacifico';
+import * as SplashScreen from 'expo-splash-screen';
+import { ActivityIndicator } from 'react-native';
+
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  
-    useEffect(() => {
-      const sub = Linking.addEventListener("url", (event) => {
-        const url = event.url; // ✓ correct typing
 
-        if (url.includes("oauth-native-callback")) {
-          // Ignore this deep link so Expo Router doesn’t show "unmatched route"
-          return;
-        }
-      });
+  let [fontsLoaded] = useFonts({
+    DMSerifText_400Regular,
+    DMSerifText_400Regular_Italic,
+    Pacifico_400Regular
+  });
 
-      return () => sub.remove();
-    }, []);
+  useEffect(() => {
+    const sub = Linking.addEventListener("url", (event) => {
+      const url = event.url; // ✓ correct typing
 
-    return (
-      <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
-        <PaperProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <Stack initialRouteName='index'>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="models" options={{ title: 'Models Store' }} />
-                <Stack.Screen name="auth" options={{ headerShown: false }} />
-                <Stack.Screen name="chat" options={{ headerShown: false }} />
-              </Stack>
-              <StatusBar style="auto" />
-            </ThemeProvider>
-          </GestureHandlerRootView>
-        </PaperProvider>
-      </ClerkProvider>
-    );
+      if (url.includes("oauth-native-callback")) {
+        // Ignore this deep link so Expo Router doesn’t show "unmatched route"
+        return;
+      }
+    });
+
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
   }
+
+  return (
+    <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
+      <PaperProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack initialRouteName='index'>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+              <Stack.Screen name="models" options={{ title: 'Models Store' }} />
+              <Stack.Screen name="main" options={{ headerShown: false }} />
+            </Stack>
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        </GestureHandlerRootView>
+      </PaperProvider>
+    </ClerkProvider>
+  );
+}

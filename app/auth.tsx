@@ -1,11 +1,13 @@
+import AuthButton from '@/components/auth-button'
+import Github from '@/components/icons/github'
+import Google from '@/components/icons/google'
 import { useSSO } from '@clerk/clerk-expo'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as AuthSession from 'expo-auth-session'
 import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import React, { useCallback, useEffect } from 'react'
-import { Platform, View } from 'react-native'
-import { Button, Text } from 'react-native-paper'
+import { ImageBackground, Platform, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
@@ -29,7 +31,7 @@ export const useWarmUpBrowser = () => {
 WebBrowser.maybeCompleteAuthSession()
 
 
-export default function SignInScreen() {
+export default function AuthScreen() {
     useWarmUpBrowser()
 
     // Use the `useSSO()` hook to access the `startSSOFlow()` method
@@ -37,11 +39,11 @@ export default function SignInScreen() {
 
     const router = useRouter();
 
-    const onPress = useCallback(async () => {
+    const onSSOPress = useCallback(async (strategy: 'oauth_google' | 'oauth_github') => {
         try {
             // Start the authentication process by calling `startSSOFlow()`
-            const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
-                strategy: 'oauth_google',
+            const { createdSessionId, setActive } = await startSSOFlow({
+                strategy: strategy,
                 // For web, defaults to current path
                 // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
                 // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
@@ -55,10 +57,10 @@ export default function SignInScreen() {
             if (createdSessionId) {
                 setActive!({
                     session: createdSessionId,
-                    // 🔹 Save user state locally for offline login
                     // Check for session tasks and navigate to custom UI to help users resolve them
                     // See https://clerk.com/docs/guides/development/custom-flows/overview#session-tasks
                     navigate: async ({ session }) => {
+                        // 🔹 Save user state locally for offline login
                         await AsyncStorage.setItem("is_logged_in", "true");
                         // 🔹 Optionally save user profile (NOT the token)
                         if (session?.user) {
@@ -93,15 +95,28 @@ export default function SignInScreen() {
         }
     }, [])
 
+    // <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    //     <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>SwiftLM Authentication</Text>
+    //     <Text style={{ fontSize: 14, textAlign: 'center', color: '#9BA1A6' }}>Choose how you want to authenticate</Text>
+    //     <View style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: 32 }}>
+    //         <Button mode='contained' icon="google" onPress={onPress}>Continue with Google</Button>
+    //         <Button mode='elevated' icon="github">Continue with Github</Button>
+    //     </View>
+    // </SafeAreaView>
+
     return (
-        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>SwiftLM Authentication</Text>
-            <Text style={{ fontSize: 14, textAlign: 'center', color: '#9BA1A6' }}>Choose how you want to authenticate</Text>
-            <View style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: 32 }}>
-                <Button mode='contained' icon="google" onPress={onPress}>Continue with Google</Button>
-                <Button mode='elevated' icon="github">Continue with Github</Button>
-            </View>
-        </SafeAreaView>
+
+        <ImageBackground source={require('../assets/images/auth-background.png')} resizeMode='cover' style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontFamily: "DMSerifText_400Regular", fontSize: 32 }}>Authenticate with</Text>
+                <Text style={{ fontFamily: "DMSerifText_400Regular", fontSize: 32 }}>SwiftLM</Text>
+
+                <View style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, paddingHorizontal: 20, position: 'absolute', bottom: 30 }}>
+                    <AuthButton onPress={() => onSSOPress('oauth_google')} icon={<Google />} />
+                    <AuthButton onPress={() => onSSOPress('oauth_github')} icon={<Github />} />
+                </View>
+            </SafeAreaView>
+        </ImageBackground>
     )
 }
 
