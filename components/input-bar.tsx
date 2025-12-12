@@ -1,11 +1,12 @@
+import { useTheme } from '@/hooks';
 import llamaService from '@/services/llama-service';
 import { useMessageStore } from '@/store/message-store';
 import { useModelStore } from '@/store/model-store';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react-native';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Alert, Keyboard, Platform } from 'react-native';
-import { Searchbar, useTheme } from 'react-native-paper';
+import { Alert, Keyboard, Platform, StyleSheet, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -21,7 +22,7 @@ interface InputBarProps {
 
 export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     const translateY = useSharedValue(0);
-    const theme = useTheme();
+    const { theme } = useTheme();
     const { setLoading, createMessage, updateLatestMessage } = useMessageStore(state => state)
     const { model } = useModelStore(state => state);
     const router = useRouter();
@@ -59,6 +60,7 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
         try {
             if (!model) {
                 setLoading(null)
+                ToastAndroid.show('No model selected', ToastAndroid.SHORT);
                 Alert.alert(
                     'Please select a model',
                     'You need to select a model to use this feature. If you don\'t have a model, you can download one from the settings.',
@@ -70,7 +72,7 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
                         },
                         {
                             text: 'Model Store',
-                            onPress: () => router.push('/models'),
+                            onPress: () => router.push('/main/models'),
                             style: 'destructive'
                         }
                     ]
@@ -79,6 +81,7 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
             }
             const id = onPress?.();
             if (!id) return
+            setQuery('');
             setLoading({ state: true, message: 'Warming up model...' })
             await llamaService.initialize(model)
             setLoading({ state: true, message: 'Generating response...' })
@@ -112,21 +115,55 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
                     bottom: 0,
                     alignItems: 'center',
                     paddingBottom: Platform.OS === 'ios' ? 20 : 27,
-                    backgroundColor: theme.colors.scrim
                 },
                 animatedStyle,
             ]}
         >
-            <Searchbar
+            {/* <Searchbar
                 value={query}
                 onChangeText={setQuery}
                 placeholder="Ask SwiftLM..."
-                style={{ height: 50, width: '94%' }}
+                style={{ height: 55, width: '94%' }}
                 icon="plus"
                 onIconPress={() => console.log('Pressed')}
                 clearIcon={() => <MaterialIcons name='send' size={24} style={{ color: query ? theme.colors.primary : theme.colors.onSurfaceDisabled }} />}
                 onClearIconPress={handleSend}
-            />
+            /> */}
+
+            <View style={[styles.inputBarContainer, { backgroundColor: theme.onBackgroud }]}>
+                <TextInput value={query} onChangeText={setQuery} placeholder='Ask something here...' placeholderTextColor={'gray'} style={[styles.inputBar, { color: theme.text, }]} />
+                <TouchableOpacity disabled={!query} onPress={handleSend} activeOpacity={0.8} style={[styles.sendButtonContainer]}>
+                    <HugeiconsIcon icon={ArrowRight01Icon} />
+                </TouchableOpacity>
+            </View>
         </Animated.View>
     );
 }
+
+
+const styles = StyleSheet.create({
+    inputBarContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        borderRadius: 999,
+        padding: 6
+    },
+    inputBar: {
+        flex: 1,
+        height: 50,
+        borderRadius: 999,
+        paddingHorizontal: 18
+    },
+    sendButtonContainer: {
+        borderRadius: 999,
+        padding: 8,
+        backgroundColor: '#DADADA',
+        height: '100%',
+        aspectRatio: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+})

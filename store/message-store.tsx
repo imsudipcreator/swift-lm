@@ -1,10 +1,11 @@
+import { DemoMessages } from "@/data/demo-chat";
 import { Loading, MessageState, MessageType } from "@/types/message-types";
 import { v4 as uuidv4 } from 'uuid';
 import { create } from "zustand";
 
 
 export const useMessageStore = create<MessageState>((set) => ({
-    messages: [],
+    messages: DemoMessages,
     loading: null,
 
     setLoading: (loading: Loading) => set({ loading }),
