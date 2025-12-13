@@ -1,27 +1,25 @@
+import { useTheme } from '@/hooks';
 import { useChatStore } from '@/store/chat-store';
 import { useModelStore } from '@/store/model-store';
-import { useAuth } from '@clerk/clerk-expo';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { PencilEdit02Icon, Settings01Icon, Store01Icon, UserCircle02Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useRouter } from 'expo-router';
 import * as React from 'react';
-import { Alert } from 'react-native';
-import { IconButton, useTheme } from 'react-native-paper';
 import HomeScreen from '.';
-import ProfileScreen from '../profile';
 import ChatScreen from './chat';
+import ModelsScreen from './models';
+import ProfileScreen from './profile';
 import SettingsScreen from './settings';
 
 
 const Drawer = createDrawerNavigator();
 
+
 export default function ChatLayout() {
-  const theme = useTheme()
-  const router = useRouter()
+  const { theme } = useTheme()
   const { chats } = useChatStore(state => state)
   const { setModel } = useModelStore(state => state)
-  const { signOut } = useAuth();
 
 
   React.useEffect(() => {
@@ -35,11 +33,17 @@ export default function ChatLayout() {
   }, []);
   return (
     <Drawer.Navigator
-      initialRouteName="new-chat"
+      initialRouteName="index"
       screenOptions={{
-        drawerActiveTintColor: theme.colors.primary,
+        drawerContentContainerStyle: {
+          flex: 1,
+          backgroundColor: theme.background,
+        },
+        drawerActiveTintColor: theme.text,
+        drawerInactiveTintColor: theme.text,
         drawerItemStyle: {
-          borderRadius: 8
+          borderRadius: 8,
+          width: '100%'
         },
         drawerStyle: {
           borderRadius: 0,
@@ -49,57 +53,31 @@ export default function ChatLayout() {
       }}
     >
       <Drawer.Screen
-        name="new-chat"
+        name="index"
         component={HomeScreen}
         options={{
-          title: "New Chat",
-          drawerIcon: () => <MaterialIcons name="add" size={24} style={{ color: theme.colors.primary }} />,
-          headerRight: () => (
-            <IconButton
-              icon={() => <MaterialIcons name="energy-savings-leaf" size={24} style={{ color: theme.colors.primary }} />}
-            // onPress={() => router.push('/settings')}
-            />
-          ),
-          headerBackgroundContainerStyle: {
-            backgroundColor: theme.colors.elevation.level4,
-          }
+          title: "New chat",
+          headerShown: false,
+          drawerIcon: () => <HugeiconsIcon icon={PencilEdit02Icon} color={theme.text} />,
+
         }}
       />
       <Drawer.Screen
         name="profile"
         component={ProfileScreen}
         options={{
-          title: "My Profile",
-          drawerIcon: () => <MaterialIcons name="person" size={24} style={{ color: theme.colors.primary }} />,
-          headerRight: () => (
-            <IconButton
-              icon={() => <MaterialIcons name="power-settings-new" size={24} style={{ color: theme.colors.error }} />}
-              onPress={() => {
-                Alert.alert(
-                  'Sign out',
-                  'Are you sure you want to sign out?',
-                  [
-                    {
-                      text: 'Cancel',
-                      style: 'cancel',
-                      onPress: () => null,
-                    },
-                    {
-                      text: 'Sign out',
-                      onPress: async () => {
-                        await signOut();
-                        router.push('/')
-                      },
-                      style: 'destructive',
-                    },
-                  ]
-                )
-              }}
-            />
-          ),
-          headerBackgroundContainerStyle: {
-            backgroundColor: theme.colors.elevation.level4,
-          }
+          title: "My profile",
+          headerShown: false,
+          drawerIcon: () => <HugeiconsIcon icon={UserCircle02Icon} color={theme.text} />,
+        }}
+      />
+      <Drawer.Screen
+        name="models"
+        component={ModelsScreen}
+        options={{
+          title: "Models store",
+          headerShown: false,
+          drawerIcon: () => <HugeiconsIcon icon={Store01Icon} color={theme.text} />,
         }}
       />
       <Drawer.Screen
@@ -107,10 +85,9 @@ export default function ChatLayout() {
         component={SettingsScreen}
         options={{
           title: "Settings",
-          drawerIcon: () => <MaterialIcons name="settings" size={24} style={{ color: theme.colors.primary }} />,
-          headerBackgroundContainerStyle: {
-            backgroundColor: theme.colors.elevation.level4,
-          }
+          headerShown: false,
+          drawerIcon: () => <HugeiconsIcon icon={Settings01Icon} color={theme.text} />,
+          drawerItemStyle: { marginBottom : 22}
         }}
       />
       {

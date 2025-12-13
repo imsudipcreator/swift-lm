@@ -1,16 +1,13 @@
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import * as Linking from "expo-linking";
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { PaperProvider } from 'react-native-paper';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import * as Linking from "expo-linking";
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import 'react-native-reanimated';
 
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DMSerifText_400Regular, DMSerifText_400Regular_Italic, useFonts } from '@expo-google-fonts/dm-serif-text';
 import { Pacifico_400Regular } from '@expo-google-fonts/pacifico';
 import * as SplashScreen from 'expo-splash-screen';
@@ -21,7 +18,6 @@ import { ActivityIndicator } from 'react-native';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
 
   let [fontsLoaded] = useFonts({
     DMSerifText_400Regular,
@@ -54,20 +50,18 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY} tokenCache={tokenCache}>
-      <PaperProvider>
+      <ThemeProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Stack initialRouteName='index'>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-              <Stack.Screen name="auth" options={{ headerShown: false }} />
-              <Stack.Screen name="models" options={{ title: 'Models Store' }} />
-              <Stack.Screen name="main" options={{ headerShown: false }} />
-            </Stack>
-            <StatusBar style="auto" />
-          </ThemeProvider>
+          <Stack initialRouteName='index'>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+            <Stack.Screen name="auth" options={{ headerShown: false }} />
+            <Stack.Screen name="models" options={{ title: 'Models Store' }} />
+            <Stack.Screen name="main" options={{ headerShown: false }} />
+          </Stack>
+          <StatusBar style="auto" />
         </GestureHandlerRootView>
-      </PaperProvider>
-    </ClerkProvider>
+      </ThemeProvider>
+    </ClerkProvider >
   );
 }
