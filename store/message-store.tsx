@@ -1,18 +1,21 @@
-import { DemoMessages } from "@/data/demo-chat";
+import { db } from "@/db/db";
+import { messages } from "@/db/schema";
 import { Loading, MessageState, MessageType } from "@/types/message-types";
 import { v4 as uuidv4 } from 'uuid';
 import { create } from "zustand";
 
 
 export const useMessageStore = create<MessageState>((set) => ({
-    messages: DemoMessages,
+    messages: [],
     loading: null,
 
     setLoading: (loading: Loading) => set({ loading }),
-    mountMessage: (message: MessageType) => set((state) => ({ messages: [...state.messages, message] })),
-    createMessage: (role: string, type: string, content: string, chatId: string) => {
+    setMessages: (message: MessageType) => set((state) => ({ messages: [...state.messages, message] })),
+    createMessage: async (role: "user" | "assistant", type: "result" | "error", content: string, chatId: string) => {
         const id = uuidv4();
-        set(state => ({ messages: [...state.messages, { id, createdAt: new Date(), updatedAt: new Date(), role, type, content, chatId }] }))
+        const now = new Date();
+        set(state => ({ messages: [...state.messages, { id, createdAt: now, updatedAt: now, role, type, content, chatId }] }))
+        await db.insert(messages).values({ id, createdAt: now, updatedAt: now, role, type, content, chatId })
         return id
     },
     updateLatestMessage: (chunk: string) =>

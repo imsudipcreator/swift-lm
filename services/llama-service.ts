@@ -39,7 +39,6 @@ class LlamaService {
 
   async initialize(model: string) {
     try {
-
       console.log("Initializing llama model…");
       this.context = await initLlama({
         model: Paths.document.uri + "models/" + model,

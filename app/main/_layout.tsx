@@ -1,3 +1,6 @@
+import { Models } from '@/constants/models';
+import { db } from '@/db/db';
+import { chats as chatsTable } from '@/db/schema';
 import { useTheme } from '@/hooks';
 import { useChatStore } from '@/store/chat-store';
 import { useModelStore } from '@/store/model-store';
@@ -5,6 +8,7 @@ import { PencilEdit02Icon, Settings01Icon, Store01Icon, UserCircle02Icon } from 
 import { HugeiconsIcon } from '@hugeicons/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Directory, Paths } from 'expo-file-system';
 import * as React from 'react';
 import HomeScreen from '.';
 import ChatScreen from './chat';
@@ -18,19 +22,50 @@ const Drawer = createDrawerNavigator();
 
 export default function ChatLayout() {
   const { theme } = useTheme()
-  const { chats } = useChatStore(state => state)
-  const { setModel } = useModelStore(state => state)
+  const { chats, setChats } = useChatStore(state => state)
+  const { setSelectedModel, setDownloadedModels, downloadedModels, selectedModel } = useModelStore(state => state)
 
 
   React.useEffect(() => {
-    const loadModelPath = async () => {
-      const model_path = await AsyncStorage.getItem('model_path');
-      console.log('model_path', model_path);
-      if (model_path) setModel(model_path);
+    async function loadModel() {
+      const model_name = await AsyncStorage.getItem('model');
+      console.log('model', model_name);
+      const model = Models.find((model) => model.name === model_name)
+      if (model) {
+        setSelectedModel(model);
+      } else if (downloadedModels.length > 0) {
+        setSelectedModel(downloadedModels[0]);
+      }
+      console.log("selectedModel Global", selectedModel);
     };
 
-    loadModelPath();
+    async function getModels(modelDir: Directory) {
+      const models = modelDir.list();
+
+      for (const item of models) {
+        if (item instanceof Directory) {
+          getModels(item);
+        } else {
+          const model = Models.find((model) => model.name === item.name)
+          if (model) {
+            setDownloadedModels([model]);
+          }
+        }
+      }
+    }
+
+    async function getChats() {
+      const chats = await db.select().from(chatsTable).execute();
+      console.log('chats', chats);
+      setChats(chats)
+    }
+
+    getModels(new Directory(Paths.document.uri + 'models/'))
+    loadModel();
+    getChats();
   }, []);
+
+
   return (
     <Drawer.Navigator
       initialRouteName="index"
@@ -87,7 +122,7 @@ export default function ChatLayout() {
           title: "Settings",
           headerShown: false,
           drawerIcon: () => <HugeiconsIcon icon={Settings01Icon} color={theme.text} />,
-          drawerItemStyle: { marginBottom : 22}
+          drawerItemStyle: { marginBottom: 22 }
         }}
       />
       {

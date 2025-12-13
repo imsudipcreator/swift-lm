@@ -1,24 +1,30 @@
 import InputBar from '@/components/input-bar';
+import { Models } from '@/constants/models';
 import { useTheme } from '@/hooks';
+import { useChatStore } from '@/store/chat-store';
 import { useMessageStore } from '@/store/message-store';
+import { useModelStore } from '@/store/model-store';
 import { MenuTwoLineIcon, MoreVerticalIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-const { width} = Dimensions.get('screen')
+const { width } = Dimensions.get('screen')
 
 export default function ChatScreen({ route, navigation }: any) {
     const { id } = route.params;
     const [query, setQuery] = useState('');
     const { theme } = useTheme();
-    const { messages: allMessages, createMessage, loading } = useMessageStore(state => state)
+    const { messages: allMessages, createMessage, loading, setMessages } = useMessageStore(state => state)
+    const { setSelectedModel, selectedModel } = useModelStore(state => state);
     const messages = allMessages.filter(message => message.chatId === id)
     const [openedThoughts, setOpenedThoughts] = useState<number | null>(null)
+    const { chats } = useChatStore(state => state)
+    const modelUsed = chats.find((chat) => chat.id === id)?.modelUsed
 
     // console.log(messages)
     // console.log("id: ", id)
@@ -32,6 +38,26 @@ export default function ChatScreen({ route, navigation }: any) {
         }
     }
 
+    useEffect(() => {
+        if (modelUsed) {
+            const model = Models.find((model) => model.name === modelUsed)
+            if (!model) {
+                console.log("Model not found")
+                return
+            }
+            setSelectedModel(model)
+            console.log("id: ", id)
+            console.log("model used: ", modelUsed)
+            console.log("selected model: ", selectedModel)
+        }
+
+        async function getMessages() {
+            // setMessages([]);
+            // const messages = await db.select().from(messagesTable).where(eq(messagesTable.chatId, id)).execute();
+            // console.log('messages', messages);
+            // setMessages(messages);
+        }
+    }, [])
 
     function handlePress() {
         createMessage("user", "result", query, id);
@@ -40,9 +66,9 @@ export default function ChatScreen({ route, navigation }: any) {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} style={{ flex: 1 }}>
             <SafeAreaView style={{ flex: 1, paddingHorizontal: 16, backgroundColor: theme.background, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <Header onDrawerPress={navigation.toggleDrawer} />
+                <Header onDrawerPress={navigation.toggleDrawer} modelUsed={modelUsed ?? "Unknown Model"} />
                 <FlatList
-                    data={messages}                   
+                    data={messages}
                     keyExtractor={(item) => item.id}
                     alwaysBounceVertical
                     renderItem={({ item: message, index }) => {
@@ -83,7 +109,7 @@ export default function ChatScreen({ route, navigation }: any) {
                         </View>
                     )}
                 />
-                <View style={{ width, backgroundColor: theme.background, height: 53}}/>
+                <View style={{ width, backgroundColor: theme.background, height: 53 }} />
                 <InputBar query={query} setQuery={setQuery} onPress={handlePress} />
             </SafeAreaView>
         </TouchableWithoutFeedback>
@@ -92,8 +118,9 @@ export default function ChatScreen({ route, navigation }: any) {
 
 interface HeaderProps {
     onDrawerPress: () => void;
+    modelUsed: string
 }
-function Header({ onDrawerPress }: HeaderProps) {
+function Header({ onDrawerPress, modelUsed }: HeaderProps) {
     const { theme } = useTheme();
     return (
         <View style={styles.headerConatiner}>
@@ -104,7 +131,7 @@ function Header({ onDrawerPress }: HeaderProps) {
             {/** Model Selector */}
 
             <TouchableOpacity activeOpacity={0.8} style={[styles.headerItemContainer, { flex: 1, backgroundColor: theme.onBackgroud, display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 3 }]}>
-                <Text style={{ color: theme.text }}>{"Models Store"}</Text>
+                <Text style={{ color: theme.text }}>{modelUsed}</Text>
             </TouchableOpacity>
             {/** Temporary Chat */}
             <TouchableOpacity activeOpacity={0.8} style={[styles.headerItemContainer, styles.headerItemRounded, { backgroundColor: theme.onBackgroud }]}>

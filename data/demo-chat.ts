@@ -1,3 +1,4 @@
+import { Models } from "@/constants/models";
 import { ChatType } from "@/types/chat-types";
 import { MessageType } from "@/types/message-types";
 
@@ -5,18 +6,21 @@ export const DemoChat: ChatType[] = [
   {
     id: "1",
     slug: "Hello back",
+    modelUsed: Models[0],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
     id: "2",
     slug: "How sun generates heat",
+    modelUsed: Models[1],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
     id: "3",
     slug: "Explain Quantum mechanics",
+    modelUsed: Models[2],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
