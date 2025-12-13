@@ -14,8 +14,8 @@ export type MessageType = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  role: string;
-  type: string;
+  role: "user" | "assistant";
+  type: "result" | "error";
   content: string;
   chatId: string;
 };
@@ -28,10 +28,15 @@ export type Loading = {
 } | null;
 
 export interface MessageState {
-  messages: MessageType[];
+  messages: MessageType[] | [];
   loading: Loading;
   setLoading: (loading: Loading) => void;
-  mountMessage: (message: MessageType) => void;
-  createMessage: (role: string, type: string, content: string, chatId: string) => void;
+  setMessages: (message: MessageType) => void;
+  createMessage: (
+    role: "user" | "assistant",
+    type: "result" | "error",
+    content: string,
+    chatId: string
+  ) => void;
   updateLatestMessage: (chunk: string) => void;
 }

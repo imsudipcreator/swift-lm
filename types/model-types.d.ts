@@ -1,10 +1,12 @@
 import { IconSvgElement } from "@hugeicons/react-native";
 
 export interface ModelState {
-  model: string | null;
-  setModel: (model: string) => void;
-  downloadingModel: string | null;
-  setDownloadingModel: (model: string) => void;
+  selectedModel: Model | null;
+  setSelectedModel: (model: Model) => void;
+  downloadingModel: Model | null;
+  setDownloadingModel: (model: Model | null) => void;
+  downloadedModels: Model[];
+  setDownloadedModels: (models: Model[]) => void;
 }
 
 export type Model = {

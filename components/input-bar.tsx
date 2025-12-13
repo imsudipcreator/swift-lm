@@ -1,3 +1,5 @@
+import { db } from '@/db/db';
+import { messages as messageTable } from '@/db/schema';
 import { useTheme } from '@/hooks';
 import llamaService from '@/services/llama-service';
 import { useMessageStore } from '@/store/message-store';
@@ -12,19 +14,20 @@ import Animated, {
     useSharedValue,
     withTiming,
 } from 'react-native-reanimated';
+import { v4 as uuidv4 } from 'uuid';
 
 
 interface InputBarProps {
     query: string;
     setQuery: (query: string) => void;
-    onPress?: () => string | null;
+    onPress?: () => Promise<string | null>;
 }
 
 export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     const translateY = useSharedValue(0);
     const { theme } = useTheme();
-    const { setLoading, createMessage, updateLatestMessage } = useMessageStore(state => state)
-    const { model } = useModelStore(state => state);
+    const { setLoading, createMessage, updateLatestMessage, messages } = useMessageStore(state => state)
+    const { selectedModel } = useModelStore(state => state);
     const router = useRouter();
 
     useEffect(() => {
@@ -58,7 +61,7 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
     async function handleSend() {
         if (!query) return
         try {
-            if (!model) {
+            if (!selectedModel) {
                 setLoading(null)
                 ToastAndroid.show('No model selected', ToastAndroid.SHORT);
                 Alert.alert(
@@ -79,20 +82,45 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
                 )
                 return
             }
-            const id = onPress?.();
+            const id = await onPress?.();
             if (!id) return
             setQuery('');
             setLoading({ state: true, message: 'Warming up model...' })
-            await llamaService.initialize(model)
+            await llamaService.initialize(selectedModel.name)
             setLoading({ state: true, message: 'Generating response...' })
             // const response = await llamaService.generate([{ role: 'user', content: query }])
-            const messageId = createMessage("assistant", "result", "", id)
-            llamaService.completion([{ role: 'user', content: query }], (data) => {
+
+            // format message history
+            const messages_history = messages.map((message) => {
+
+                if (message.role === 'user') {
+                    return { role: 'user', content: message.content }
+                } else {
+                    return { role: 'assistant', content: message.content }
+                }
+            })
+            console.log(messages_history);
+            createMessage("assistant", "result", "", id)
+            const response = await llamaService.completion(messages_history.slice(-6), (data) => {
                 const response = data.content ?? ""; // streaming token buffer
-                console.log(response)
+                // console.log(response)
 
                 updateLatestMessage(response)
             });
+
+            // insert messages to db
+            const uuid = uuidv4();
+            const now = new Date();
+
+            await db.insert(messageTable).values({
+                id: uuid,
+                createdAt: now,
+                updatedAt: now,
+                role: "assistant",
+                type: "result",
+                content: response,
+                chatId: id
+            })
         } catch (error) {
             console.error(error)
         } finally {
@@ -102,7 +130,7 @@ export default function InputBar({ query, setQuery, onPress }: InputBarProps) {
 
 
     useEffect(() => {
-        console.log("Model:", model)
+        console.log("Model:", selectedModel)
     }, [])
 
 
