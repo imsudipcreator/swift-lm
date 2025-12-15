@@ -28,15 +28,17 @@ export type Loading = {
 } | null;
 
 export interface MessageState {
-  messages: MessageType[] | [];
+  messages: MessageType[];
   loading: Loading;
   setLoading: (loading: Loading) => void;
-  setMessages: (message: MessageType) => void;
+  unmountMessages: () => void;
+  setMessages: (message: MessageType[]) => void;
   createMessage: (
     role: "user" | "assistant",
     type: "result" | "error",
     content: string,
     chatId: string
-  ) => void;
+  ) => Promise<string>;
+  mountMessage: (message: MessageType) => void;
   updateLatestMessage: (chunk: string) => void;
 }
