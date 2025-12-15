@@ -49,7 +49,7 @@ export default function AuthScreen() {
                 // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
                 redirectUrl: AuthSession.makeRedirectUri({
                     scheme: "swiftlm",     // <= match your app.json
-                    path: "oauth-native-callback"
+                    path: "/"
                 }),
             })
 
@@ -112,8 +112,8 @@ export default function AuthScreen() {
                 <Text style={{ fontFamily: "DMSerifText_400Regular", fontSize: 32 }}>SwiftLM</Text>
 
                 <View style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, paddingHorizontal: 20, position: 'absolute', bottom: 30 }}>
-                    <AuthButton onPress={() => onSSOPress('oauth_google')} icon={<Google />} />
-                    <AuthButton onPress={() => onSSOPress('oauth_github')} icon={<Github />} />
+                    <AuthButton label='Continue with Google' onPress={() => onSSOPress('oauth_google')} icon={<Google />} />
+                    <AuthButton label='Continue with Github' onPress={() => onSSOPress('oauth_github')} icon={<Github />} />
                 </View>
             </SafeAreaView>
         </ImageBackground>

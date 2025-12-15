@@ -1,7 +1,7 @@
 {
   "name": "swift-lm",
   "main": "expo-router/entry",
-  "version": "2.0.1",
+  "version": "2.2.1",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -15,10 +15,12 @@
     "@expo-google-fonts/dm-serif-text": "^0.4.1",
     "@expo-google-fonts/pacifico": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
+    "@gorhom/bottom-sheet": "^5.2.8",
     "@hugeicons/core-free-icons": "^2.0.0",
     "@hugeicons/react-native": "^1.0.9",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-community/slider": "^5.1.1",
     "@react-native-picker/picker": "^2.11.4",
     "@react-native-vector-icons/material-design-icons": "^12.4.0",
     "@react-navigation/bottom-tabs": "^7.4.0",

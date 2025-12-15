@@ -1,70 +1,100 @@
-import { useModelStore } from '@/store/model-store';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Directory, Paths } from 'expo-file-system';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { RadioButton, Text, useTheme } from 'react-native-paper';
+import Button from '@/components/button';
+import InputBar from '@/components/input-bar';
+import { useTheme } from '@/hooks';
+import { useGenerationStore } from '@/store/generation-store';
+import { useUser } from '@clerk/clerk-expo';
+import { MenuTwoLineIcon, MoreVerticalIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNetInfo } from '@react-native-community/netinfo';
+import Slider from '@react-native-community/slider';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-type ModelInfo = {
-  name: string;
-  size: number;
-}
 
-export default function SettingsScreen() {
-  const theme = useTheme()
-  const [lang, setLang] = useState();
-  const [downloadedModels, setDownloadedModels] = React.useState<ModelInfo[]>([])
-  const { model, setModel } = useModelStore()
-  const router = useRouter()
+export default function SettingsScreen({ navigation }: any) {
+  const { theme } = useTheme();
+  // const { user } = useUserStore(state => state);
+  const { isConnected, isInternetReachable } = useNetInfo();
+  const { user } = useUser();
+  const { config, setName, setTemperature, setCustomPrompt } = useGenerationStore(state => state);
 
-  function bytesToGB(bytes: number) {
-    if (bytes < 0) {
-      throw new Error("Input bytes cannot be negative.");
-    }
-    const gigabyte = 1024 * 1024 * 1024; // 1 GB = 1024^3 Bytes
-    return (bytes / gigabyte).toFixed(3);
+
+  function saveGenerationConfig() {
+    AsyncStorage.setItem('generation_config', JSON.stringify(config));
+    ToastAndroid.show('Configuration saved locally', ToastAndroid.SHORT);
+    console.log('generation_config', JSON.stringify(config));
   }
 
 
-  function listDirectory(directory: Directory, indent: number = 0) {
-    // console.log(`${' '.repeat(indent)} + ${directory.name}`);
-    const contents = directory.list();
-    for (const item of contents) {
-      if (item instanceof Directory) {
-        listDirectory(item, indent + 2);
-      } else {
-        // console.log(`${' '.repeat(indent + 2)} - ${item.name} (${item.size} bytes)`);
-        setDownloadedModels(prev => [...prev, { name: item.name, size: item.size }])
-      }
-    }
-  }
-
-  useEffect(() => {
-    listDirectory(new Directory(Paths.document.uri + 'models'));
-  }, []);
   return (
-    <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', padding: 16, gap: 5 }}>
-      <View style={[{ backgroundColor: theme.colors.surface, }, styles.buttonContainer]}>
-        <Text variant='titleMedium'>Downloaded Models</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <ScrollView style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, paddingHorizontal: 16 }}>
+        <Header onDrawerPress={navigation.toggleDrawer} />
+        {/** Profile */}
         {
-          model && (
-            <RadioButton.Group onValueChange={value => setModel(value)} value={model}>
-              {
-                downloadedModels?.map((model, index) => (
-                  <RadioButton.Item key={index} label={model.name} value={model.name} labelVariant='labelMedium'/>
-                ))
-              }
-            </RadioButton.Group>
-
+          !isConnected || !isInternetReachable ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text>Offline</Text>
+            </View>
+          ) : (
+            <View style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'center', marginTop: 24 }}>
+              <View style={[styles.avatarConatiner, { backgroundColor: theme.onBackgroud }]}>
+                <Text style={{ color: theme.text, fontWeight: 'semibold', fontSize: 34 }}>{user?.firstName?.charAt(0) ?? 'U'}{user?.lastName?.charAt(0) ?? 'A'}</Text>
+              </View>
+              <View style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
+                <Text style={{ color: theme.text, fontSize: 18, fontWeight: 'medium' }}>{user?.fullName ?? 'Unknown User'}</Text>
+                <Text style={{ color: theme.text, fontSize: 14, fontWeight: 'medium' }}>{user?.emailAddresses[0].emailAddress}</Text>
+              </View>
+            </View>
           )
         }
-      </View>
+        <View style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 24, paddingHorizontal: 8 }}>
+          <InputBar label="Name" placeholder="e.g., Sudip Mahata" value={config.name} onChangeText={(value) => setName(value)} />
+          <InputBar label="Custom Prompt" multiline placeholder="Describe your custom prompt" value={config.customPrompt} onChangeText={(value) => setCustomPrompt(value)} style={{ height: 100, textAlignVertical: 'top' }} />
+          <View style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start', width: '100%' }}>
+            <Text style={{ color: theme.text, fontWeight: 'medium', fontSize: 16, paddingLeft: 2 }}>{"Temperature" + " (" + config.temperature + ")"}</Text>
+            <Slider
+              style={{ width: '100%', height: 40, padding: 0 }}
+              minimumValue={0}
+              maximumValue={1}
+              minimumTrackTintColor={theme.text}
+              maximumTrackTintColor={theme.secondary}
+              value={config.temperature}
+              onValueChange={(value) => setTemperature(value)}
+              step={0.1}
+            />
+          </View>
+          <Button onPress={saveGenerationConfig} style={{ backgroundColor: theme.text }}>
+            <Text style={{ color: theme.background, fontSize: 14, fontWeight: 'medium' }}>Save Configuration</Text>
+          </Button>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
 
 
-      <TouchableOpacity onPress={() => router.push('/models')} style={[{ backgroundColor: theme.colors.surface, justifyContent: 'space-between', flexDirection: 'row', display: 'flex', width: '100%', padding: 12, borderRadius: 8 }]}>
-        <Text variant='titleMedium'>Find Models</Text>
-        <MaterialIcons name="chevron-right" size={24} style={{ color: theme.colors.primary }} />
+interface HeaderProps {
+  onDrawerPress: () => void;
+}
+function Header({ onDrawerPress }: HeaderProps) {
+  const { theme } = useTheme();
+  return (
+    <View style={styles.headerConatiner}>
+      {/** Drawer Toggle */}
+      <TouchableOpacity activeOpacity={0.8} onPress={onDrawerPress} style={[styles.headerItemContainer, styles.headerItemRounded, { backgroundColor: theme.onBackgroud }]}>
+        <HugeiconsIcon icon={MenuTwoLineIcon} color={theme.text} />
+      </TouchableOpacity>
+      {/** Model Selector */}
+
+      <TouchableOpacity activeOpacity={0.8} style={[styles.headerItemContainer, { flex: 1, backgroundColor: theme.onBackgroud, display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 3 }]}>
+        <Text style={{ color: theme.text }}>{"Settings"}</Text>
+      </TouchableOpacity>
+      {/** Temporary Chat */}
+      <TouchableOpacity activeOpacity={0.8} style={[styles.headerItemContainer, styles.headerItemRounded, { backgroundColor: theme.onBackgroud }]}>
+        <HugeiconsIcon icon={MoreVerticalIcon} color={theme.text} />
       </TouchableOpacity>
     </View>
   )
@@ -72,6 +102,49 @@ export default function SettingsScreen() {
 
 
 const styles = StyleSheet.create({
+  headerConatiner: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 8,
+    height: 60,
+    paddingVertical: 4
+  },
+  headerItemContainer: {
+    borderRadius: 999,
+    padding: 8
+  },
+  headerItemRounded: {
+    aspectRatio: 1,
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  modelContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    padding: 16,
+    gap: 2,
+    borderRadius: 16
+  },
+  infoContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 2
+  },
+  attributeContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+  },
+
   buttonContainer: {
     width: '100%',
     display: 'flex',
@@ -80,4 +153,13 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8
   },
+  avatarConatiner: {
+    borderRadius: 999,
+    width: 140,
+    aspectRatio: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 })
+

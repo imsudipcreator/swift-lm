@@ -1,3 +1,4 @@
+import { useGenerationStore } from "@/store/generation-store";
 import { Directory, File, Paths } from "expo-file-system";
 import {
   initLlama,
@@ -56,11 +57,24 @@ class LlamaService {
     onPartialCompletion: (data: TokenData) => void
   ) {
     try {
+      const {  customPrompt } = useGenerationStore.getState().config;
+      const finalMessages: RNLlamaOAICompatibleMessage[] = customPrompt
+        ? [
+            {
+              role: "system",
+              content: useGenerationStore.getState().config.customPrompt + "\n" + useGenerationStore.getState().config.name ? `The sender is: ${useGenerationStore.getState().config.name}` : "",
+            },
+            ...messages,
+          ]
+        : messages;
+
       const res = await this.context?.completion(
         {
-          messages,
+          messages: finalMessages,
           n_predict: 2048,
           ignore_eos: false,
+          enable_thinking: true,
+          temperature: useGenerationStore.getState().config.temperature ?? 0.7,
           stop: ["<｜end▁of▁sentence｜>"],
         },
         onPartialCompletion

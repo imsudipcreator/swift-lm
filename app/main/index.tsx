@@ -1,4 +1,4 @@
-import InputBar from '@/components/input-bar';
+import AiInputBar from '@/components/ai-input-bar';
 import { useTheme } from '@/hooks';
 import { useChatStore } from '@/store/chat-store';
 import { useMessageStore } from '@/store/message-store';
@@ -14,7 +14,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 export default function HomeScreen({ navigation }: any) {
   const [query, setQuery] = useState('');
   const { createChat } = useChatStore(state => state);
-  const { createMessage } = useMessageStore(state => state);
+  const { createMessage, messages } = useMessageStore(state => state);
   const { selectedModel } = useModelStore(state => state);
   const { theme } = useTheme();
 
@@ -29,7 +29,11 @@ export default function HomeScreen({ navigation }: any) {
     setTimeout(() => {
       navigation.jumpTo(slug, { id });
     }, 100);
-    createMessage("user", "result", query, id);
+    // unmount previous messages from the store
+    useMessageStore.getState().unmountMessages();
+    console.log("state after unmounting messages:", messages);
+    
+    await createMessage("user", "result", query, id);
     return id
   }
 
@@ -43,7 +47,7 @@ export default function HomeScreen({ navigation }: any) {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ textAlign: 'center', fontSize: 32, fontWeight: 'bold', color: theme.text }}>What are we doing today?</Text>
           </View>
-          <InputBar query={query} setQuery={setQuery} onPress={async () => await handleCreateNewChat()} />
+          <AiInputBar query={query} setQuery={setQuery} onPress={async () => await handleCreateNewChat()} />
         </SafeAreaView>
       </TouchableWithoutFeedback>
     </ImageBackground>

@@ -5,19 +5,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { create } from "zustand";
 
 
-export const useMessageStore = create<MessageState>((set) => ({
+export const useMessageStore = create<MessageState>((set, get) => ({
     messages: [],
     loading: null,
 
     setLoading: (loading: Loading) => set({ loading }),
-    setMessages: (message: MessageType) => set((state) => ({ messages: [...state.messages, message] })),
+    unmountMessages: () => set({ messages: [] }),
+    setMessages: (message: MessageType[]) => set((state) => ({ messages: [...state.messages, ...message] })),
     createMessage: async (role: "user" | "assistant", type: "result" | "error", content: string, chatId: string) => {
         const id = uuidv4();
         const now = new Date();
         set(state => ({ messages: [...state.messages, { id, createdAt: now, updatedAt: now, role, type, content, chatId }] }))
+        console.log("createMessage", { id, createdAt: now, updatedAt: now, role, type, content, chatId })
+        console.log("meesgaes after message creation: ",get().messages)
         await db.insert(messages).values({ id, createdAt: now, updatedAt: now, role, type, content, chatId })
         return id
     },
+    mountMessage: (message: MessageType) => set((state) => ({ messages: [...state.messages, message] })),
     updateLatestMessage: (chunk: string) =>
         set((state) => {
             const messages = [...state.messages];

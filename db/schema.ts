@@ -22,7 +22,7 @@ export const messages = sqliteTable("messages", {
     enum: ["result", "error"],
   }).notNull(),
 
-  content: text("content"),
+  content: text("content").notNull(),
 
   chatId: text("chat_id")
     .notNull()
